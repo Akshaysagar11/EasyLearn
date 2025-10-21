@@ -5,7 +5,7 @@ const isLocalhost = window.location.hostname === 'localhost';
 const api = axios.create({
   baseURL: isLocalhost
     ? 'http://localhost:5000'
-    : 'https://easylearn-6qg4.onrender.com',
+    : 'https://easylearnbackend.onrender.com/',
 });
 
 export default api;
