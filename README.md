@@ -91,7 +91,7 @@ EasyLearn transforms traditional e-learning into an interactive, gamified, and A
 
 ### 9. Responsive Design
 - Fully responsive UI optimized for desktop, tablet, and mobile.
-- Smooth and clean Material-UI design for a modern experience.
+- Smooth and clean Material-Tailwind design for a modern experience.
 
 ### 10. Backend API
 - RESTful API built with Node.js and Express.
