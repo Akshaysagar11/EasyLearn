@@ -2,11 +2,20 @@ import React, { useEffect, useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthContext } from "../context/AuthContext";
 import api from "../axios";
-import badgeimg from '../assets/Badges/html.png';
 
+// public folder paths (NO import needed)
+const COURSE_BADGE = "/badges/course.jpg";
+const LANGUAGE_BADGE = "/badges/language.jpg";
 
 const BadgeCard = ({ badge, awardedAt }) => {
-  const formattedDate = awardedAt ? new Date(awardedAt).toLocaleDateString() : "Unknown";
+  const formattedDate = awardedAt
+    ? new Date(awardedAt).toLocaleDateString()
+    : "Unknown";
+
+  const defaultImage =
+    badge?.type === "course" ? COURSE_BADGE : LANGUAGE_BADGE;
+
+  const [imgSrc, setImgSrc] = useState(badge?.iconUrl || defaultImage);
 
   return (
     <motion.div
@@ -17,13 +26,23 @@ const BadgeCard = ({ badge, awardedAt }) => {
       transition={{ duration: 0.4 }}
     >
       <img
-        src={badge.iconUrl}
-        alt={badge.name}
+        src={imgSrc}
+        alt={badge?.name || "Badge"}
         className="w-16 h-16 mb-4 rounded-full border border-white/40 shadow-lg"
+        onError={() => setImgSrc(defaultImage)}
       />
-      <h3 className="text-lg font-semibold text-white">{badge.name}</h3>
-      <p className="text-sm text-gray-300 mt-1">{badge.description}</p>
-      <p className="text-xs text-gray-400 mt-2">🏅 Earned on: {formattedDate}</p>
+
+      <h3 className="text-lg font-semibold text-white">
+        {badge?.name}
+      </h3>
+
+      <p className="text-sm text-gray-300 mt-1">
+        {badge?.description}
+      </p>
+
+      <p className="text-xs text-gray-400 mt-2">
+        🏅 Earned on: {formattedDate}
+      </p>
     </motion.div>
   );
 };
@@ -42,6 +61,7 @@ const BadgeComponent = () => {
         setLoading(false);
         return;
       }
+
       try {
         setLoading(true);
         setError(null);
@@ -54,7 +74,6 @@ const BadgeComponent = () => {
 
         const badges = res.data.badges || [];
 
-        // Separate into course and language badges
         const lang = [];
         const course = [];
 
@@ -66,8 +85,8 @@ const BadgeComponent = () => {
         setLanguageBadges(lang);
         setCourseBadges(course);
       } catch (err) {
-        setError("Failed to fetch badges.");
         console.error(err);
+        setError("Failed to fetch badges.");
       } finally {
         setLoading(false);
       }
@@ -80,7 +99,7 @@ const BadgeComponent = () => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <AnimatePresence>
         {badgeList.map((entry, index) =>
-          entry.badge ? (
+          entry?.badge ? (
             <BadgeCard
               key={entry.badge._id || index}
               badge={entry.badge}
@@ -94,30 +113,38 @@ const BadgeComponent = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-      <h1 className="text-3xl font-bold mb-6 text-white">🏆 My Badges</h1>
+      <h1 className="text-3xl font-bold mb-6">🏆 My Badges</h1>
 
       {loading && (
-        <div className="text-blue-400 animate-pulse text-lg">Loading badges...</div>
+        <div className="text-blue-400 animate-pulse text-lg">
+          Loading badges...
+        </div>
       )}
 
-      {error && <p className="text-red-400 font-medium">{error}</p>}
+      {error && (
+        <p className="text-red-400 font-medium">{error}</p>
+      )}
 
       {!loading && !error && languageBadges.length === 0 && courseBadges.length === 0 && (
-        <p className="text-gray-400 italic">No badges earned yet. Start learning to collect them!</p>
+        <p className="text-gray-400 italic">
+          No badges earned yet. Start learning to collect them!
+        </p>
       )}
 
-      {/* 🎯 Course Badges */}
       {!loading && !error && courseBadges.length > 0 && (
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-blue-300 mb-4">📘 Course Completion Badges</h2>
+          <h2 className="text-2xl font-semibold text-blue-300 mb-4">
+            📘 Course Completion Badges
+          </h2>
           {renderBadgeGrid(courseBadges)}
         </section>
       )}
 
-      {/* 🧠 Language Badges */}
       {!loading && !error && languageBadges.length > 0 && (
         <section>
-          <h2 className="text-2xl font-semibold text-purple-300 mb-4">🔤 Language Completion Badges</h2>
+          <h2 className="text-2xl font-semibold text-purple-300 mb-4">
+            🔤 Language Completion Badges
+          </h2>
           {renderBadgeGrid(languageBadges)}
         </section>
       )}
